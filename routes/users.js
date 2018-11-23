@@ -51,7 +51,6 @@ router.post('/login', auth.optional, (req, res, next) => {
     return passport.authenticate('local', {
         session: false
     }, (err, user, info) => {
-        console.log(user)
         if (user) {
             user.token = user.generateJWT();
 
@@ -64,22 +63,20 @@ router.post('/login', auth.optional, (req, res, next) => {
     })(req, res, next);
 });
 
-router.get('/current', auth.required, (req, res, next) => {
+router.get('/current', auth.required, async (req, res, next) => {
     const {
-        payload: {
-            id
-        }
+        body: { id }
     } = req;
 
-    return Users.findById(id)
-        .then((user) => {
-            if (!user) {
-                return res.sendStatus(400);
-            }
+    console.log(id);
 
-            return res.json({
-                user: user.toAuthJSON()
-            });
+    const user = await Users.findByPk(id);
+        if (!user) {
+            return res.sendStatus(400);
+        }
+
+        return res.json({
+            user: user.toAuthJSON()
         });
 });
 

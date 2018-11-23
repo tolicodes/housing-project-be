@@ -12,14 +12,12 @@ module.exports = (sequelize) => {
     });
 
     Users.prototype.setPassword = function (password) {
-        console.log(password);
         this.salt = crypto.randomBytes(16).toString('hex');
         this.hash = crypto.pbkdf2Sync(password, this.salt, 10000, 512, 'sha512').toString('hex');
     };
 
     Users.prototype.validatePassword = function (password) {
         const hash = crypto.pbkdf2Sync(password, this.salt, 10000, 512, 'sha512').toString('hex');
-        console.log(hash, 'aaaa', this.hash)
         return this.hash === hash;
     };
 
