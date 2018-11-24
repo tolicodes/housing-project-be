@@ -4,6 +4,7 @@ const auth = require('../auth/parseHeader');
 const { Users } = require('../models');
 
 require('../auth/passport');
+require('../auth/facebook');
 
 const errorJSON = ((error, res) => (
     res.status(422).json({
@@ -79,5 +80,9 @@ router.get('/current', auth.required, async (req, res, next) => {
             user: user.toAuthJSON()
         });
 });
+
+router.post('/facebook', passport.authenticate('facebook'));
+
+router.post('/facebook/callback')
 
 module.exports = router;
