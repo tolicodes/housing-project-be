@@ -4,7 +4,10 @@ const auth = require('../auth/parseHeader');
 const { Users } = require('../models');
 
 require('../auth/passport');
-require('../auth/facebook');
+
+const linkedInAuth = passport.authenticate('linkedin');
+const googleAuth = passport.authenticate('google', { scope: ['profile'] });
+const facebookAuth = passport.authenticate('facebook');
 
 const errorJSON = ((error, res) => (
     res.status(422).json({
@@ -81,8 +84,34 @@ router.get('/current', auth.required, async (req, res, next) => {
         });
 });
 
-router.post('/facebook', passport.authenticate('facebook'));
+const socialCallback = (provider, getUserDetails) => (req, res) => {
+  const io = req.app.get('io')
+  const user = getUserDetails(req);
+  console.log(req.session.socketId)
+  io.in(req.session.socketId).emit(provider, user)
+  res.end()
+}
 
-router.post('/facebook/callback')
+router.get('/linkedin/callback', linkedInAuth, socialCallback('linkedin', ({ user: { name: { familyName, givenName }}}) => ({
+    name: givenName + ' ' + familyName
+})));
+
+router.get('/google/callback', googleAuth, socialCallback('google', (req) => ({
+    name: req.user.displayName,
+    photo: req.user.photos[0].value.replace(/sz=50/gi, 'sz=250')
+})));
+
+router.get('/facebook/callback', facebookAuth, socialCallback('facebook', ({ user: { displayName }}) => ({
+    name: displayName,
+})));
+
+router.use((req, res, next) => {
+    req.session.socketId = req.query.socketId
+    next()
+  });
+
+router.get('/linkedin', linkedInAuth);
+router.get('/google', googleAuth);
+router.get('/facebook', facebookAuth);
 
 module.exports = router;
