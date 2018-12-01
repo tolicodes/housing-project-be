@@ -1,7 +1,7 @@
 const passport = require('passport');
 const router = require('express').Router();
 const auth = require('../auth/parseHeader');
-const { Users } = require('../models');
+const models = require('../models');
 
 require('../auth/passport');
 
@@ -16,29 +16,33 @@ const errorJSON = ((error, res) => (
 ))
 
 router.post('/', auth.optional, async (req, res, next) => {
-    const {
-        body: {
-            email,
-            password
-        }
-    } = req; 
+    try {
+        const {
+            body: {
+                email,
+                password
+            }
+        } = req; 
 
-    if (!email) return errorJSON('Email is required');
-    if (!password) return errorJSON('Password is required', res);
+        if (!email) return errorJSON('Email is required');
+        if (!password) return errorJSON('Password is required', res);
 
-    const [user, created] = await Users.findOrCreate({
-        where: { email }
-    });
+        const [user, created] = await models.user.findOrCreate({
+            where: { email }
+        });
 
-    if (!created) return errorJSON('User already exists', res);
+        if (!created) return errorJSON('User already exists', res);
 
-    user.setPassword(password);
+        user.setPassword(password);
 
-    await user.save();
+        await user.save();
 
-    return res.json({
-        user: user.toAuthJSON()
-    });
+        return res.json({
+            user: user.toAuthJSON()
+        });
+    } catch (e) {
+        console.error(e)
+    }
 });
 
 router.post('/login', auth.optional, (req, res, next) => {
@@ -67,17 +71,9 @@ router.post('/login', auth.optional, (req, res, next) => {
     })(req, res, next);
 });
 
-router.get('/current', auth.required, async (req, res, next) => {
-    const {
-        body: { id }
-    } = req;
-
-    console.log(id);
-
-    const user = await Users.findByPk(id);
-        if (!user) {
-            return res.sendStatus(400);
-        }
+router.get('/current', auth.required, async ({ user: { id } }, res, next) => {
+    const user = await models.user.findByPk(id);
+        if (!user) return res.sendStatus(400).json({ error: 'Invalid user' })
 
         return res.json({
             user: user.toAuthJSON()
@@ -87,7 +83,7 @@ router.get('/current', auth.required, async (req, res, next) => {
 const socialCallback = (provider, getUserDetails) => (req, res) => {
   const io = req.app.get('io')
   const user = getUserDetails(req);
-  console.log(req.session.socketId)
+
   io.in(req.session.socketId).emit(provider, user)
   res.end()
 }

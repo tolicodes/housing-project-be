@@ -1,0 +1,9 @@
+{
+  "development": {
+    "username": "root",
+    "password": "bighouselittlehouse",
+    "database": "housingproject",
+    "host": "housing-project.czepijxeys5d.us-west-2.rds.amazonaws.com",
+    "dialect": "mysql"
+  }
+}
