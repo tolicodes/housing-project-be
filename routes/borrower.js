@@ -33,7 +33,6 @@ router.post('/', auth.required, async ({
 
     if (borrower) {
         neighborhoods.forEach(hood => {
-            console.log(Object.keys(borrower))
             borrower.createBorrower_neighborhood({
                 city,
                 name: hood

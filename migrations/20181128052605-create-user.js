@@ -18,7 +18,7 @@ module.exports = {
         type: Sequelize.STRING,
       },
       hash: {
-        type: Sequelize.STRING
+        type: 'VARCHAR(2000)'
       },
       salt: {
         type: Sequelize.STRING

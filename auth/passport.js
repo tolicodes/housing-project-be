@@ -4,9 +4,7 @@ const { Strategy: LinkedInStrategy } = require('passport-linkedin');
 const { OAuth2Strategy: GoogleStrategy } = require('passport-google-oauth');
 const { Strategy: FacebookStrategy } = require('passport-facebook');
 
-const {
-  Users
-} = require('../models');
+const models = require('../models');
 
 const {
   APP_ROOT,
@@ -22,7 +20,7 @@ passport.use(new LocalStrategy({
   usernameField: 'email',
   passwordField: 'password',
 }, async (email, password, done) => {
-  const user  = await Users.find({
+  const user = await models.user.findOne({
     where: {
       email
     }

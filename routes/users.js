@@ -20,15 +20,29 @@ router.post('/', auth.optional, async (req, res, next) => {
         const {
             body: {
                 email,
-                password
+                password,
+                name,
+                phone,
+                company,
+                mls_number,
             }
         } = req; 
 
         if (!email) return errorJSON('Email is required');
         if (!password) return errorJSON('Password is required', res);
+        if (!name) return errorJSON('Name is required', res);
+        if (!phone) return errorJSON('Phone is required', res);
+        if (!company) return errorJSON('Company is required', res);
+        if (!mls_number) return errorJSON('MLS Number is required', res);
 
         const [user, created] = await models.user.findOrCreate({
-            where: { email }
+            where: { email },
+            defaults: {
+                name,
+                phone,
+                company,
+                mls_number,
+            }
         });
 
         if (!created) return errorJSON('User already exists', res);
@@ -53,27 +67,25 @@ router.post('/login', auth.optional, (req, res, next) => {
         }
     } = req;
 
-    if (!email) return errorJSON('Email is required');
+    if (!email) return errorJSON('Email is required', res);
     if (!password) return errorJSON('Password is required', res);
 
-    return passport.authenticate('local', {
+    passport.authenticate('local', {
         session: false
     }, (err, user, info) => {
-        if (user) {
-            user.token = user.generateJWT();
+        if (!user) return res.status(400).json(info);
 
-            return res.json({
-                user: user.toAuthJSON()
-            });
-        }
+        user.token = user.generateJWT();
 
-        return res.sendStatus(400).json(info);
+        return res.json({
+            user: user.toAuthJSON()
+        });
     })(req, res, next);
 });
 
 router.get('/current', auth.required, async ({ user: { id } }, res, next) => {
     const user = await models.user.findByPk(id);
-        if (!user) return res.sendStatus(400).json({ error: 'Invalid user' })
+        if (!user) return res.status(400).json({ error: 'Invalid user' })
 
         return res.json({
             user: user.toAuthJSON()

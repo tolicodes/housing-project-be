@@ -24,6 +24,8 @@ module.exports = (sequelize, DataTypes) => {
 
   user.prototype.validatePassword = function (password) {
     const hash = crypto.pbkdf2Sync(password, this.salt, 10000, 512, 'sha512').toString('hex');
+    console.log(password, hash, this.hash)
+
     return this.hash === hash;
   };
 
@@ -44,6 +46,7 @@ module.exports = (sequelize, DataTypes) => {
       id: this.id,
       email: this.email,
       token: this.generateJWT(),
+      name: this.name,
     };
   };
 
