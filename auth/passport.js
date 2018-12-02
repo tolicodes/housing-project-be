@@ -6,6 +6,13 @@ const { Strategy: FacebookStrategy } = require('passport-facebook');
 
 const models = require('../models');
 
+const PROVIDER_MAP = {
+  'facebook': 'fb_id',
+  'linkedin': 'li_id',
+  'google': 'google_id',
+};
+
+
 const {
   APP_ROOT,
   FACEBOOK_APP_ID,
@@ -38,29 +45,36 @@ passport.use(new LocalStrategy({
 
 }));
 
-// Allowing passport to serialize and deserialize users into sessions
 passport.serializeUser((user, cb) => cb(null, user))
 passport.deserializeUser((obj, cb) => cb(null, obj))
 
-// The callback that is invoked when an OAuth provider sends back user 
-// information. Normally, you would save the user to the database 
-// in this callback and it would be customized for each provider.
-const callback = (accessToken, refreshToken, profile, cb) => cb(null, profile)
+const onSocialLoginSuccess = provider => async (accessToken, refreshToken, profile, cb) => {
+  const user = await models.user.findOne({
+    where: {
+      [PROVIDER_MAP[provider]]: profile.id
+    }
+  })
+
+  cb(null, {
+    ...profile,
+    exists: !!user
+  });
+}
 
 passport.use(new GoogleStrategy({
   clientID: GOOGLE_CLIENT_ID,
   clientSecret: GOOGLE_CLIENT_SECRET,
   callbackURL: APP_ROOT + '/users/google/callback'
-}, callback));
+}, onSocialLoginSuccess('google')));
 
 passport.use(new LinkedInStrategy({
   consumerKey: LINKEDIN_CLIENT_ID,
   consumerSecret: LINKEDIN_CLIENT_SECRET,
   callbackURL: APP_ROOT + '/users/linkedin/callback'
-}, callback))
+}, onSocialLoginSuccess('linkedin')))
 
 passport.use(new FacebookStrategy({
   clientID: FACEBOOK_APP_ID,
   clientSecret: FACEBOOK_APP_SECRET,
   callbackURL: APP_ROOT + '/users/facebook/callback'
-}, callback))
+}, onSocialLoginSuccess('facebook')))

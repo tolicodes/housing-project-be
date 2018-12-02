@@ -13,7 +13,7 @@ module.exports = (sequelize, DataTypes) => {
     google_id: DataTypes.STRING,
     social_login: DataTypes.STRING,
     name: DataTypes.STRING,
-    mls_number: DataTypes.STRING,
+    nmls_number: DataTypes.STRING,
     type: DataTypes.STRING
   }, {});
 
@@ -24,7 +24,6 @@ module.exports = (sequelize, DataTypes) => {
 
   user.prototype.validatePassword = function (password) {
     const hash = crypto.pbkdf2Sync(password, this.salt, 10000, 512, 'sha512').toString('hex');
-    console.log(password, hash, this.hash)
 
     return this.hash === hash;
   };

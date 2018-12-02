@@ -24,16 +24,19 @@ router.post('/', auth.optional, async (req, res, next) => {
                 name,
                 phone,
                 company,
-                mls_number,
+                nmls_number,
+                google_id,
+                fb_id,
+                li_id,
             }
         } = req; 
 
         if (!email) return errorJSON('Email is required');
-        if (!password) return errorJSON('Password is required', res);
+        if (!password && !google_id && !fb_id && !li_id) return errorJSON('Password is required', res);
         if (!name) return errorJSON('Name is required', res);
         if (!phone) return errorJSON('Phone is required', res);
         if (!company) return errorJSON('Company is required', res);
-        if (!mls_number) return errorJSON('MLS Number is required', res);
+        if (!nmls_number) return errorJSON('nmls Number is required', res);
 
         const [user, created] = await models.user.findOrCreate({
             where: { email },
@@ -41,7 +44,10 @@ router.post('/', auth.optional, async (req, res, next) => {
                 name,
                 phone,
                 company,
-                mls_number,
+                nmls_number,
+                fb_id,
+                google_id,
+                li_id,
             }
         });
 
@@ -96,21 +102,26 @@ const socialCallback = (provider, getUserDetails) => (req, res) => {
   const io = req.app.get('io')
   const user = getUserDetails(req);
 
-  io.in(req.session.socketId).emit(provider, user)
-  res.end()
+  io.in(req.session.socketId).emit(provider, user);
+  res.end();
 }
 
-router.get('/linkedin/callback', linkedInAuth, socialCallback('linkedin', ({ user: { name: { familyName, givenName }}}) => ({
-    name: givenName + ' ' + familyName
+router.get('/linkedin/callback', linkedInAuth, socialCallback('linkedin', ({ user: { exists, id, name: { familyName, givenName }}}) => ({
+    name: givenName + ' ' + familyName,
+    id,
+    exists,
 })));
 
-router.get('/google/callback', googleAuth, socialCallback('google', (req) => ({
-    name: req.user.displayName,
-    photo: req.user.photos[0].value.replace(/sz=50/gi, 'sz=250')
-})));
-
-router.get('/facebook/callback', facebookAuth, socialCallback('facebook', ({ user: { displayName }}) => ({
+router.get('/google/callback', googleAuth, socialCallback('google', ({ user: { exists, displayName, id}}) => ({
     name: displayName,
+    id,
+    exists
+})));
+
+router.get('/facebook/callback', facebookAuth, socialCallback('facebook', ({ user: { exists, displayName, id }}) => ({
+    name: displayName,
+    id,
+    exists,
 })));
 
 router.use((req, res, next) => {

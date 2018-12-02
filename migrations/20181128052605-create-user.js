@@ -38,7 +38,7 @@ module.exports = {
       name: {
         type: Sequelize.STRING
       },
-      mls_number: {
+      nmls_number: {
         type: Sequelize.STRING
       },
       type: {
