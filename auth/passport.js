@@ -12,7 +12,6 @@ const PROVIDER_MAP = {
   'google': 'google_id',
 };
 
-
 const {
   APP_ROOT,
   FACEBOOK_APP_ID,
@@ -49,16 +48,21 @@ passport.serializeUser((user, cb) => cb(null, user))
 passport.deserializeUser((obj, cb) => cb(null, obj))
 
 const onSocialLoginSuccess = provider => async (accessToken, refreshToken, profile, cb) => {
-  const user = await models.user.findOne({
-    where: {
-      [PROVIDER_MAP[provider]]: profile.id
-    }
-  })
+  try {
+    const user = await models.user.findOne({
+      where: {
+        [PROVIDER_MAP[provider]]: profile.id
+      }
+    });
+    console.log(user);
 
-  cb(null, {
-    ...profile,
-    exists: !!user
-  });
+    cb(null, {
+      ...profile,
+      exists: !!user
+    });
+  } catch(e) {
+    console.error(e)
+  }
 }
 
 passport.use(new GoogleStrategy({
