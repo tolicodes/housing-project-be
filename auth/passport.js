@@ -54,7 +54,7 @@ const onSocialLoginSuccess = provider => async (accessToken, refreshToken, profi
         [PROVIDER_MAP[provider]]: profile.id
       }
     });
-    console.log(user);
+    console.log(!!user);
 
     cb(null, {
       ...profile,
