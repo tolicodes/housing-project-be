@@ -1,6 +1,6 @@
 const passport = require('passport');
 const LocalStrategy = require('passport-local');
-const { Strategy: LinkedInStrategy } = require('passport-linkedin');
+const { Strategy: LinkedInStrategy } = require('passport-linkedin-oauth2');
 const { OAuth2Strategy: GoogleStrategy } = require('passport-google-oauth');
 const { Strategy: FacebookStrategy } = require('passport-facebook');
 
@@ -54,8 +54,6 @@ const onSocialLoginSuccess = provider => async (accessToken, refreshToken, profi
       }
     });
 
-    console.log('yo', profile)
-
     cb(null, {
       ...profile,
       exists: !!user
@@ -72,14 +70,15 @@ passport.use(new GoogleStrategy({
 }, onSocialLoginSuccess('google')));
 
 passport.use(new LinkedInStrategy({
-  consumerKey: LINKEDIN_CLIENT_ID,
-  consumerSecret: LINKEDIN_CLIENT_SECRET,
+  clientID: LINKEDIN_CLIENT_ID,
+  clientSecret: LINKEDIN_CLIENT_SECRET,
   callbackURL: APP_ROOT + '/users/linkedin/callback',
-  scope: ['r_emailaddress', 'r_fullprofile'],
+  scope: ['r_emailaddress', 'r_basicprofile'],
 }, onSocialLoginSuccess('linkedin')))
 
 passport.use(new FacebookStrategy({
   clientID: FACEBOOK_APP_ID,
   clientSecret: FACEBOOK_APP_SECRET,
-  callbackURL: APP_ROOT + '/users/facebook/callback'
+  callbackURL: APP_ROOT + '/users/facebook/callback',
+  profileFields: ['id', 'displayName', 'photos']
 }, onSocialLoginSuccess('facebook')))

@@ -132,11 +132,11 @@ const socialCallback = (provider, getUserDetails) => (req, res) => {
 
 }
 
-router.get('/linkedin/callback', linkedInAuth, socialCallback('linkedin', ({ user: { exists, id, name: { familyName, givenName }, ...other }}) => ({
+router.get('/linkedin/callback', linkedInAuth, socialCallback('linkedin', ({ user: { exists, id, name: { familyName, givenName }, photos: [{ value }] }}) => ({
     name: givenName + ' ' + familyName,
     id,
     exists,
-    other,
+    photo: value
 })));
 
 router.get('/google/callback', googleAuth, socialCallback('google', ({ user: { exists, displayName, id, photos: [{ value }] }}) => ({
@@ -146,10 +146,11 @@ router.get('/google/callback', googleAuth, socialCallback('google', ({ user: { e
     photo: value,
 })));
 
-router.get('/facebook/callback', facebookAuth, socialCallback('facebook', ({ user: { exists, displayName, id, ...other }}) => ({
+router.get('/facebook/callback', facebookAuth, socialCallback('facebook', ({ user: { exists, displayName, id, photos: [{ value }] }}) => ({
     name: displayName,
     id,
     exists,
+    photo: value,
 })));
 
 router.use((req, res, next) => {
