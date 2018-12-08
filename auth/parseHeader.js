@@ -10,18 +10,21 @@ const getTokenFromHeaders = (req) => {
   return null;
 };
 
+const jwtAuthOptions = {
+  secret: 'secret',
+  userProperty: 'user',
+  getToken: getTokenFromHeaders,
+};
+
 const auth = {
-  required: jwt({
-    secret: 'secret',
-    userProperty: 'user',
-    getToken: getTokenFromHeaders,
-  }),
+  required: jwt(jwtAuthOptions),
   optional: jwt({
-    secret: 'secret',
-    userProperty: 'user',
-    getToken: getTokenFromHeaders,
+    ...jwtAuthOptions,
     credentialsRequired: false,
   }),
+  admin: (req) => {
+    console.log(req)
+  }
 };
 
 module.exports = auth;

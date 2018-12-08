@@ -13,7 +13,29 @@ const errorJSON = ((error, res) => (
     res.status(422).json({
         error,
     })
-))
+));
+
+router.get('/', auth.required, async (req, res) => {
+   const users = await models.user.findAll({
+    include: [ { model: models.borrower, as: 'borrowers', include: [models.borrower_neighborhood] } ],
+   });
+   res.json(users.map(({
+       email,
+       nmls_number,
+       name,
+       phone,
+       company,
+       borrowers,
+   }) => ({
+        email,
+        nmls_number,
+        name,
+        phone,
+        company,
+        borrowers,
+        })
+    ));
+});
 
 router.post('/', auth.optional, async (req, res, next) => {
     try {

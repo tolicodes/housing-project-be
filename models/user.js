@@ -14,7 +14,8 @@ module.exports = (sequelize, DataTypes) => {
     social_login: DataTypes.STRING,
     name: DataTypes.STRING,
     nmls_number: DataTypes.STRING,
-    type: DataTypes.STRING
+    type: DataTypes.STRING,
+    admin: DataTypes.BOOLEAN
   }, {});
 
   user.prototype.setPassword = function (password) {
@@ -45,7 +46,8 @@ module.exports = (sequelize, DataTypes) => {
       id: this.id,
       email: this.email,
       token: this.generateJWT(),
-      name: this.name,
+      name: this.name, 
+      admin: this.admin,
     };
   };
 
