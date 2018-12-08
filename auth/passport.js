@@ -43,8 +43,8 @@ passport.use(new LocalStrategy({
   return done(null, user);
 }));
 
-passport.serializeUser((user, cb) => console.log('usa', user) && cb(null, user))
-passport.deserializeUser((obj, cb) => console.log('usa', obj) && cb(null, obj))
+passport.serializeUser((user, cb) => cb(null, user))
+passport.deserializeUser((obj, cb) => cb(null, obj))
 
 const onSocialLoginSuccess = provider => async (accessToken, refreshToken, profile, cb) => {
   try {
@@ -53,6 +53,8 @@ const onSocialLoginSuccess = provider => async (accessToken, refreshToken, profi
         [PROVIDER_MAP[provider]]: profile.id
       }
     });
+
+    console.log('yo', profile)
 
     cb(null, {
       ...profile,
@@ -72,7 +74,8 @@ passport.use(new GoogleStrategy({
 passport.use(new LinkedInStrategy({
   consumerKey: LINKEDIN_CLIENT_ID,
   consumerSecret: LINKEDIN_CLIENT_SECRET,
-  callbackURL: APP_ROOT + '/users/linkedin/callback'
+  callbackURL: APP_ROOT + '/users/linkedin/callback',
+  scope: ['r_emailaddress', 'r_fullprofile'],
 }, onSocialLoginSuccess('linkedin')))
 
 passport.use(new FacebookStrategy({
