@@ -56,6 +56,7 @@ const onSocialLoginSuccess = provider => async (accessToken, refreshToken, profi
 
     cb(null, {
       ...profile,
+      token: user.generateJWT(),
       exists: !!user
     });
   } catch(e) {
