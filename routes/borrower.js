@@ -2,13 +2,38 @@ const router = require('express').Router();
 const auth = require('../auth/parseHeader');
 const models = require('../models');
 
-router.get('/:id', auth.required, ({
+router.delete('/:id', ({
     params: {
         id
     }
-}) => {
-    res.json(models.findByPk(id));
+}, res) => {
+    await models.borrower.destroy({
+        where: {
+            id,
+        }
+    })
 });
+
+router.put('/:id', async ({
+    params: {
+        id
+    },
+    body: {
+        name,
+        preapprovalAmount,
+        neighborhoods,
+        city,
+    }
+}, res) => {
+    const borrower = await models.borrower.findByPk(id);
+
+    await borrower.update({
+        name,
+        preapprovalAmount
+    });
+
+    res.json(borrower);
+})
 
 router.post('/', auth.required, async ({
         user: {
