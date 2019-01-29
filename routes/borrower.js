@@ -2,7 +2,18 @@ const router = require('express').Router();
 const auth = require('../auth/parseHeader');
 const models = require('../models');
 
-router.delete('/:id', ({
+router.get('/current', async ({
+    query: {
+        userId,
+    }
+}, res) => {
+    res.json(await models.borrower.findAll({
+        where: { userId },
+        include: { model: models.borrower_neighborhood }
+    }));
+})
+
+router.delete('/:id', async ({
     params: {
         id
     }
@@ -11,6 +22,10 @@ router.delete('/:id', ({
         where: {
             id,
         }
+    });
+
+    res.json({
+        ok: true
     })
 });
 

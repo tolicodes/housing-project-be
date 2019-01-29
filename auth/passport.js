@@ -54,6 +54,8 @@ const onSocialLoginSuccess = provider => async (accessToken, refreshToken, profi
       }
     });
 
+    if (!user) return cb(null);
+
     cb(null, {
       ...profile,
       token: user.generateJWT(),
