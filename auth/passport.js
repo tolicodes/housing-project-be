@@ -47,6 +47,7 @@ passport.serializeUser((user, cb) => cb(null, user))
 passport.deserializeUser((obj, cb) => cb(null, obj))
 
 const onSocialLoginSuccess = provider => async (accessToken, refreshToken, profile, cb) => {
+  console.log('yo')
   try {
     const user = await models.user.findOne({
       where: {
@@ -54,11 +55,9 @@ const onSocialLoginSuccess = provider => async (accessToken, refreshToken, profi
       }
     });
 
-    if (!user) return cb(null);
-
     cb(null, {
       ...profile,
-      token: user.generateJWT(),
+      token: user && user.generateJWT(),
       exists: !!user
     });
   } catch(e) {

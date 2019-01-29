@@ -121,6 +121,7 @@ router.get('/current', auth.required, async ({ user: { id } }, res, next) => {
 });
 
 const socialCallback = (provider, getUserDetails) => (req, res) => {
+    console.log('yo')
   const io = req.app.get('io')
   const user = getUserDetails(req);
 
