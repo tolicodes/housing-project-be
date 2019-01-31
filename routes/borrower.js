@@ -36,6 +36,7 @@ router.put('/:id', async ({
     body: {
         name,
         preapprovalAmount,
+        purchasePrice,
         neighborhoods,
         city,
     }
@@ -44,7 +45,8 @@ router.put('/:id', async ({
 
     await borrower.update({
         name,
-        preapprovalAmount
+        preapprovalAmount,
+        purchasePrice
     });
 
     res.json(borrower);
@@ -57,6 +59,7 @@ router.post('/', auth.required, async ({
         body: {
             name,
             preapprovalAmount,
+            purchasePrice,
             neighborhoods,
             city,
         }
@@ -67,6 +70,7 @@ router.post('/', auth.required, async ({
         userId,
         name,
         preapprovalAmount,
+        purchasePrice,
         neighborhoods,
         city,
     });

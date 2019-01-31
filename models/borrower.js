@@ -3,6 +3,7 @@ module.exports = (sequelize, DataTypes) => {
   const borrower = sequelize.define('borrower', {
     name: DataTypes.STRING,
     preapprovalAmount: DataTypes.STRING,
+    purchasePrice: DataTypes.STRING
   }, {});
   borrower.associate = function(models) {
     borrower.belongsTo(models.user);
